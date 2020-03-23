@@ -40,7 +40,7 @@ func TestLimiter_Allow(t *testing.T) {
 
 		assert.Nil(t, err)
 		assert.True(t, res.Allowed)
-		assert.Equal(t, int64(1), res.Remaining)
+		assert.Equal(t, int64(9), res.Remaining)
 	})
 
 	t.Run("gcra", func(t *testing.T) {
