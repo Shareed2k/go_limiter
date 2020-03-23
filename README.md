@@ -1,5 +1,7 @@
 # Rate limiting with few algorithms
 
+[![Build Status](https://travis-ci.org/Shareed2k/go_limiter.svg?branch=master)](github.com/shareed2k/go_limiter)
+
 This package is based on [go-redis/redis_rate](github.com/go-redis/redis_rate) and implements GCRA (aka leaky bucket) for rate limiting based on Redis. The code requires Redis version 3.2 or newer since it relies on replicate_commands feature.
 
 ## Installation
