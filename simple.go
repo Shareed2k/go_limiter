@@ -28,6 +28,7 @@ func (c *simple) Allow() (r *Result, err error) {
 
 	return &Result{
 		Limit:      limit,
+		Key:        c.key,
 		Allowed:    values[0].(int64) == 1,
 		Remaining:  values[1].(int64),
 		RetryAfter: dur(retryAfter),

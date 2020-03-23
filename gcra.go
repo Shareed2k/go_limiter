@@ -41,6 +41,7 @@ func (c *gcra) AllowN(n int) (*Result, error) {
 
 	res := &Result{
 		Limit:      limit,
+		Key:        c.key,
 		Allowed:    values[0].(int64) == 0,
 		Remaining:  values[1].(int64),
 		RetryAfter: dur(retryAfter),

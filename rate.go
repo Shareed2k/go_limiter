@@ -28,6 +28,9 @@ type (
 		// Limit is the limit that was used to obtain this result.
 		Limit *Limit
 
+		// Key is the key of limit
+		Key string
+
 		// Allowed reports whether event may happen at time now.
 		Allowed bool
 
