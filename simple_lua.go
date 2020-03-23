@@ -40,11 +40,11 @@ local del = delta()
 local count = allow_check_card()
 
 if count >= rate then
-    return {0, count, tostring(del)}
+    return {0, rate-count, tostring(del)}
 end
 
 redis.call("ZADD", rate_limit_key, now_nanos, now_nanos)
 redis.call("EXPIRE", rate_limit_key, period)
 
-return {1, count+1, tostring(del)}
+return {1, rate-(count+1), tostring(del)}
 `)
