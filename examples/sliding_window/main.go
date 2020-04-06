@@ -18,10 +18,9 @@ func main() {
 
 	limiter := go_limiter.NewLimiter(client)
 	res, err := limiter.Allow("api_gateway:klu4ik", &go_limiter.Limit{
-		Algorithm: "simple",
+		Algorithm: go_limiter.SlidingWindowAlgorithm,
 		Rate:      10,
 		Period:    2 * time.Minute,
-		Burst:     10,
 	})
 
 	if err != nil {

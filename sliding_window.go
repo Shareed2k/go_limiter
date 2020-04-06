@@ -4,13 +4,19 @@ import (
 	"strconv"
 )
 
-type simple struct {
+const SlidingWindowAlgorithmName = "sliding_window"
+
+type slidingWindow struct {
 	key   string
 	limit *Limit
 	rdb   rediser
 }
 
-func (c *simple) Allow() (r *Result, err error) {
+func (c *slidingWindow) SetKey(key string) {
+	c.key = key
+}
+
+func (c *slidingWindow) Allow() (r *Result, err error) {
 	limit := c.limit
 	values := []interface{}{limit.Rate, limit.Period.Seconds()}
 

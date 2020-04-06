@@ -29,7 +29,7 @@ func TestLimiter_Allow(t *testing.T) {
 	l := rateLimiter()
 
 	limit := &Limit{
-		Algorithm: "simple",
+		Algorithm: SlidingWindowAlgorithm,
 		Rate:      10,
 		Period:    time.Minute,
 		Burst:     10,
@@ -44,7 +44,7 @@ func TestLimiter_Allow(t *testing.T) {
 	})
 
 	t.Run("gcra", func(t *testing.T) {
-		limit.Algorithm = "gcra"
+		limit.Algorithm = GCRAAlgorithm
 
 		res, err := l.Allow("test_me", limit)
 
@@ -58,7 +58,7 @@ func TestLimiter_Allow(t *testing.T) {
 func BenchmarkAllow_Simple(b *testing.B) {
 	l := rateLimiter()
 	limit := &Limit{
-		Algorithm: "simple",
+		Algorithm: SlidingWindowAlgorithm,
 		Rate:      10000,
 		Period:    time.Second,
 		Burst:     10000,
@@ -79,7 +79,7 @@ func BenchmarkAllow_Simple(b *testing.B) {
 func BenchmarkAllow_GCRA(b *testing.B) {
 	l := rateLimiter()
 	limit := &Limit{
-		Algorithm: "gcra",
+		Algorithm: SlidingWindowAlgorithm,
 		Rate:      10000,
 		Period:    time.Second,
 		Burst:     10000,

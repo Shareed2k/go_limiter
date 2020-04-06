@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const GCRAAlgorithmName = "gcra"
+
 type gcra struct {
 	key   string
 	limit *Limit
@@ -15,6 +17,11 @@ type gcra struct {
 // Allow is shorthand for AllowN(key, 1).
 func (c *gcra) Allow() (*Result, error) {
 	return c.AllowN(1)
+}
+
+// SetKey _
+func (c *gcra) SetKey(key string) {
+	c.key = key
 }
 
 // AllowN reports whether n events may happen at time now.
