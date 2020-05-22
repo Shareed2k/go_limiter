@@ -27,6 +27,7 @@ var (
 type (
 	Algorithm interface {
 		Allow() (*Result, error)
+		Reset() error
 		SetKey(string)
 	}
 
@@ -35,6 +36,7 @@ type (
 		EvalSha(sha1 string, keys []string, args ...interface{}) *redis.Cmd
 		ScriptExists(hashes ...string) *redis.BoolSliceCmd
 		ScriptLoad(script string) *redis.StringCmd
+		Del(key ...string) *redis.IntCmd
 	}
 
 	Limit struct {
@@ -105,6 +107,24 @@ func (l *Limiter) Allow(key string, limit *Limit) (*Result, error) {
 	algo.SetKey(l.Prefix + ":" + name + ":" + key)
 
 	return algo.Allow()
+}
+
+func (l *Limiter) Reset(key string, limit *Limit) error {
+	var algo Algorithm
+
+	switch limit.Algorithm {
+	case SlidingWindowAlgorithm:
+		algo = &slidingWindow{rdb: l.rdb}
+	case GCRAAlgorithm:
+		algo = &gcra{rdb: l.rdb}
+	default:
+		return errors.New("algorithm is not supported")
+	}
+
+	name, _ := GetAlgorithmName(limit.Algorithm)
+
+	algo.SetKey(l.Prefix + ":" + name + ":" + key)
+	return algo.Reset()
 }
 
 func GetAlgorithmName(a uint) (string, bool) {

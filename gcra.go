@@ -14,6 +14,11 @@ type gcra struct {
 	rdb   rediser
 }
 
+func (c *gcra) Reset() error {
+	res := c.rdb.Del(c.key)
+	return res.Err()
+}
+
 // Allow is shorthand for AllowN(key, 1).
 func (c *gcra) Allow() (*Result, error) {
 	return c.AllowN(1)

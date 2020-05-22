@@ -55,6 +55,54 @@ func TestLimiter_Allow(t *testing.T) {
 	})
 }
 
+func TestLimiter_Reset(t *testing.T) {
+	l := rateLimiter()
+
+	limit := &Limit{
+		Rate:      1,
+		Period:    time.Minute,
+		Burst:     1,
+	}
+
+	t.Run("reset-sliding-window", func(t *testing.T) {
+		limit.Algorithm = SlidingWindowAlgorithm
+
+		res, err := l.Allow("sliding-reset_me", limit)
+		assert.Nil(t, err)
+		assert.True(t, res.Allowed)
+
+		res, err = l.Allow("sliding-reset_me", limit)
+		assert.Nil(t, err)
+		assert.False(t, res.Allowed)
+
+		err = l.Reset("sliding-reset_me", limit)
+		assert.Nil(t, err)
+
+		res, err = l.Allow("sliding-reset_me", limit)
+		assert.Nil(t, err)
+		assert.True(t, res.Allowed)
+	})
+
+	t.Run("reset-gcra-window", func(t *testing.T) {
+		limit.Algorithm = GCRAAlgorithm
+
+		res, err := l.Allow("gcra-reset_me", limit)
+		assert.Nil(t, err)
+		assert.True(t, res.Allowed)
+
+		res, err = l.Allow("gcra-reset_me", limit)
+		assert.Nil(t, err)
+		assert.False(t, res.Allowed)
+
+		err = l.Reset("gcra-reset_me", limit)
+		assert.Nil(t, err)
+
+		res, err = l.Allow("gcra-reset_me", limit)
+		assert.Nil(t, err)
+		assert.True(t, res.Allowed)
+	})
+}
+
 func BenchmarkAllow_Simple(b *testing.B) {
 	l := rateLimiter()
 	limit := &Limit{
