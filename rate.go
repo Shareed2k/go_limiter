@@ -27,6 +27,7 @@ var (
 type (
 	Algorithm interface {
 		Allow() (*Result, error)
+		Reset() error
 		SetKey(string)
 	}
 
@@ -35,6 +36,7 @@ type (
 		EvalSha(sha1 string, keys []string, args ...interface{}) *redis.Cmd
 		ScriptExists(hashes ...string) *redis.BoolSliceCmd
 		ScriptLoad(script string) *redis.StringCmd
+		Del(key ...string) *redis.IntCmd
 	}
 
 	Limit struct {
@@ -90,14 +92,9 @@ func NewLimiter(rdb rediser) *Limiter {
 
 func (l *Limiter) Allow(key string, limit *Limit) (*Result, error) {
 	var algo Algorithm
-
-	switch limit.Algorithm {
-	case SlidingWindowAlgorithm:
-		algo = &slidingWindow{limit: limit, rdb: l.rdb}
-	case GCRAAlgorithm:
-		algo = &gcra{limit: limit, rdb: l.rdb}
-	default:
-		return nil, errors.New("algorithm is not supported")
+	algo, err := l.getAlgorithm(limit)
+	if err != nil {
+		return nil, err
 	}
 
 	name, _ := GetAlgorithmName(limit.Algorithm)
@@ -105,6 +102,30 @@ func (l *Limiter) Allow(key string, limit *Limit) (*Result, error) {
 	algo.SetKey(l.Prefix + ":" + name + ":" + key)
 
 	return algo.Allow()
+}
+
+func (l *Limiter) Reset(key string, limit *Limit) error {
+	var algo Algorithm
+	algo, err := l.getAlgorithm(limit)
+	if err != nil {
+		return err
+	}
+
+	name, _ := GetAlgorithmName(limit.Algorithm)
+
+	algo.SetKey(l.Prefix + ":" + name + ":" + key)
+	return algo.Reset()
+}
+
+func (l *Limiter) getAlgorithm(limit *Limit) (Algorithm, error) {
+	switch limit.Algorithm {
+	case SlidingWindowAlgorithm:
+		return &slidingWindow{limit: limit, rdb: l.rdb}, nil
+	case GCRAAlgorithm:
+		return &gcra{limit: limit, rdb: l.rdb}, nil
+	default:
+		return nil, errors.New("algorithm is not supported")
+	}
 }
 
 func GetAlgorithmName(a uint) (string, bool) {

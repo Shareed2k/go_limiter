@@ -12,6 +12,11 @@ type slidingWindow struct {
 	rdb   rediser
 }
 
+func (c *slidingWindow) Reset() error {
+	res := c.rdb.Del(c.key)
+	return res.Err()
+}
+
 func (c *slidingWindow) SetKey(key string) {
 	c.key = key
 }
