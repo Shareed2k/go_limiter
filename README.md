@@ -23,7 +23,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/go-redis/redis/v7"
+	"github.com/go-redis/redis/v8"
 
 	"github.com/shareed2k/go_limiter"
 )

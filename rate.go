@@ -1,10 +1,10 @@
 package go_limiter
 
 import (
+	"context"
 	"errors"
+	"github.com/go-redis/redis/v8"
 	"time"
-
-	"github.com/go-redis/redis/v7"
 )
 
 const (
@@ -26,17 +26,17 @@ var (
 
 type (
 	Algorithm interface {
-		Allow() (*Result, error)
-		Reset() error
+		Allow(ctx context.Context) (*Result, error)
+		Reset(ctx context.Context) error
 		SetKey(string)
 	}
 
 	rediser interface {
-		Eval(script string, keys []string, args ...interface{}) *redis.Cmd
-		EvalSha(sha1 string, keys []string, args ...interface{}) *redis.Cmd
-		ScriptExists(hashes ...string) *redis.BoolSliceCmd
-		ScriptLoad(script string) *redis.StringCmd
-		Del(key ...string) *redis.IntCmd
+		Eval(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd
+		EvalSha(ctx context.Context, sha1 string, keys []string, args ...interface{}) *redis.Cmd
+		ScriptExists(ctx context.Context, hashes ...string) *redis.BoolSliceCmd
+		ScriptLoad(ctx context.Context, script string) *redis.StringCmd
+		Del(ctx context.Context, key ...string) *redis.IntCmd
 	}
 
 	Limit struct {
@@ -90,7 +90,7 @@ func NewLimiter(rdb rediser) *Limiter {
 	}
 }
 
-func (l *Limiter) Allow(key string, limit *Limit) (*Result, error) {
+func (l *Limiter) Allow(ctx context.Context, key string, limit *Limit) (*Result, error) {
 	var algo Algorithm
 	algo, err := l.getAlgorithm(limit)
 	if err != nil {
@@ -101,10 +101,10 @@ func (l *Limiter) Allow(key string, limit *Limit) (*Result, error) {
 
 	algo.SetKey(l.Prefix + ":" + name + ":" + key)
 
-	return algo.Allow()
+	return algo.Allow(ctx)
 }
 
-func (l *Limiter) Reset(key string, limit *Limit) error {
+func (l *Limiter) Reset(ctx context.Context, key string, limit *Limit) error {
 	var algo Algorithm
 	algo, err := l.getAlgorithm(limit)
 	if err != nil {
@@ -114,7 +114,7 @@ func (l *Limiter) Reset(key string, limit *Limit) error {
 	name, _ := GetAlgorithmName(limit.Algorithm)
 
 	algo.SetKey(l.Prefix + ":" + name + ":" + key)
-	return algo.Reset()
+	return algo.Reset(ctx)
 }
 
 func (l *Limiter) getAlgorithm(limit *Limit) (Algorithm, error) {

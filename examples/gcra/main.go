@@ -1,10 +1,10 @@
 package main
 
 import (
+	"context"
+	"github.com/go-redis/redis/v8"
 	"log"
 	"time"
-
-	"github.com/go-redis/redis/v7"
 
 	"github.com/shareed2k/go_limiter"
 )
@@ -15,9 +15,10 @@ func main() {
 		log.Fatal(err)
 	}
 	client := redis.NewClient(option)
+	ctx := context.Background()
 
 	limiter := go_limiter.NewLimiter(client)
-	res, err := limiter.Allow("api_gateway:klu4ik", &go_limiter.Limit{
+	res, err := limiter.Allow(ctx, "api_gateway:klu4ik", &go_limiter.Limit{
 		Algorithm: go_limiter.GCRAAlgorithm,
 		Rate:      10,
 		Period:    2 * time.Minute,

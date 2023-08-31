@@ -2,6 +2,7 @@
 package go_limiter
 
 import (
+	"context"
 	"strconv"
 	"time"
 )
@@ -14,14 +15,14 @@ type gcra struct {
 	rdb   rediser
 }
 
-func (c *gcra) Reset() error {
-	res := c.rdb.Del(c.key)
+func (c *gcra) Reset(ctx context.Context) error {
+	res := c.rdb.Del(ctx, c.key)
 	return res.Err()
 }
 
 // Allow is shorthand for AllowN(key, 1).
-func (c *gcra) Allow() (*Result, error) {
-	return c.AllowN(1)
+func (c *gcra) Allow(ctx context.Context) (*Result, error) {
+	return c.AllowN(ctx, 1)
 }
 
 // SetKey _
@@ -30,11 +31,11 @@ func (c *gcra) SetKey(key string) {
 }
 
 // AllowN reports whether n events may happen at time now.
-func (c *gcra) AllowN(n int) (*Result, error) {
+func (c *gcra) AllowN(ctx context.Context, n int) (*Result, error) {
 	limit := c.limit
 	values := []interface{}{limit.Burst, limit.Rate, limit.Period.Seconds(), n}
 
-	v, err := script.Run(c.rdb, []string{c.key}, values...).Result()
+	v, err := script.Run(ctx, c.rdb, []string{c.key}, values...).Result()
 	if err != nil {
 		return nil, err
 	}

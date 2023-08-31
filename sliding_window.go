@@ -1,6 +1,7 @@
 package go_limiter
 
 import (
+	"context"
 	"strconv"
 )
 
@@ -12,8 +13,8 @@ type slidingWindow struct {
 	rdb   rediser
 }
 
-func (c *slidingWindow) Reset() error {
-	res := c.rdb.Del(c.key)
+func (c *slidingWindow) Reset(ctx context.Context) error {
+	res := c.rdb.Del(ctx, c.key)
 	return res.Err()
 }
 
@@ -21,11 +22,11 @@ func (c *slidingWindow) SetKey(key string) {
 	c.key = key
 }
 
-func (c *slidingWindow) Allow() (r *Result, err error) {
+func (c *slidingWindow) Allow(ctx context.Context) (r *Result, err error) {
 	limit := c.limit
 	values := []interface{}{limit.Rate, limit.Period.Seconds()}
 
-	v, err := script2.Run(c.rdb, []string{c.key}, values...).Result()
+	v, err := script2.Run(ctx, c.rdb, []string{c.key}, values...).Result()
 	if err != nil {
 		return nil, err
 	}

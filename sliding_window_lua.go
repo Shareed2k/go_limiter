@@ -1,6 +1,6 @@
 package go_limiter
 
-import "github.com/go-redis/redis/v7"
+import "github.com/go-redis/redis/v8"
 
 var script2 = redis.NewScript(`
 -- this script has side-effects, so it requires replicate commands mode
