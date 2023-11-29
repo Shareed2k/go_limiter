@@ -3,7 +3,7 @@ package go_limiter
 import (
 	"context"
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 	"testing"
 	"time"
 

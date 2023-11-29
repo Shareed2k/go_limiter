@@ -3,8 +3,9 @@ package go_limiter
 import (
 	"context"
 	"errors"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -34,6 +35,8 @@ type (
 	rediser interface {
 		Eval(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd
 		EvalSha(ctx context.Context, sha1 string, keys []string, args ...interface{}) *redis.Cmd
+		EvalRO(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd
+		EvalShaRO(ctx context.Context, sha1 string, keys []string, args ...interface{}) *redis.Cmd
 		ScriptExists(ctx context.Context, hashes ...string) *redis.BoolSliceCmd
 		ScriptLoad(ctx context.Context, script string) *redis.StringCmd
 		Del(ctx context.Context, key ...string) *redis.IntCmd
