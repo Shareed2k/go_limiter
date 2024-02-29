@@ -1,6 +1,6 @@
 package go_limiter
 
-import "github.com/go-redis/redis/v8"
+import "github.com/redis/go-redis/v9"
 
 // Copyright (c) 2017 Pavel Pravosud
 // https://github.com/rwz/redis-gcra/blob/master/vendor/perform_gcra_ratelimit.lua
